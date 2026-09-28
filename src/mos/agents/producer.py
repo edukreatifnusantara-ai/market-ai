@@ -54,11 +54,13 @@ class Producer(BaseAgent):
 
         # Render PDF (latin-1 aman untuk font inti fpdf2)
         from fpdf import FPDF
+        from fpdf.enums import XPos, YPos
         pdf = FPDF()
         pdf.set_auto_page_break(True, 15)
         pdf.add_page()
         pdf.set_font("helvetica", "B", 22)
-        pdf.multi_cell(0, 12, judul.encode("latin-1", "replace").decode("latin-1"))
+        pdf.multi_cell(0, 12, judul.encode("latin-1", "replace").decode("latin-1"),
+                       new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.set_font("helvetica", "", 11)
         for baris in ebook_md.splitlines():
             t = baris.strip().lstrip("#").strip()
@@ -68,10 +70,12 @@ class Producer(BaseAgent):
             if baris.startswith("#"):
                 pdf.set_font("helvetica", "B", 14)
                 pdf.ln(4)
-                pdf.multi_cell(0, 7, t.encode("latin-1", "replace").decode("latin-1"))
+                pdf.multi_cell(0, 7, t.encode("latin-1", "replace").decode("latin-1"),
+                               new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 pdf.set_font("helvetica", "", 11)
             else:
-                pdf.multi_cell(0, 6, t.encode("latin-1", "replace").decode("latin-1"))
+                pdf.multi_cell(0, 6, t.encode("latin-1", "replace").decode("latin-1"),
+                               new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf_path = ctx.settings.data_dir / "artifacts" / campaign.slug / "product" / "ebook.pdf"
         pdf_path.parent.mkdir(parents=True, exist_ok=True)
         pdf.output(str(pdf_path))
