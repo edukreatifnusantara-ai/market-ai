@@ -14,6 +14,11 @@ from .db import LLMCall, Metric, utcnow
 HARGA_MODEL = {
     "claude-sonnet-5": (3.0, 15.0),
     "claude-haiku-4-5-20251001": (1.0, 5.0),
+    "gpt-4o": (2.5, 10.0),
+    "gpt-4o-mini": (0.15, 0.6),
+    "gpt-4.1": (2.0, 8.0),
+    "gpt-4.1-mini": (0.4, 1.6),
+    "gpt-4.1-nano": (0.1, 0.4),
     "mock": (0.0, 0.0),
 }
 
@@ -30,11 +35,26 @@ class LLM:
         self.settings = settings
         self.engine = engine
         self.mock = settings.force_mock
+        self.provider = "mock"
         self._client = None
         self._buffer: list[dict] = []  # log menunggu drain ke sesi aktif (hindari nested writer SQLite)
         if not self.mock:
-            import anthropic
-            self._client = anthropic.Anthropic(api_key=settings.anthropic_key)
+            if settings.anthropic_key:
+                import anthropic
+                self.provider = "anthropic"
+                self._client = anthropic.Anthropic(api_key=settings.anthropic_key)
+            elif settings.openai_key:
+                import openai
+                self.provider = "openai"
+                self._client = openai.OpenAI(api_key=settings.openai_key)
+            else:
+                self.mock = True
+
+    def _model_default(self, cheap: bool = False) -> str:
+        if self.provider == "openai":
+            key = "openai_cheap" if cheap else "openai_default"
+            return self.settings.get("models", key) or "gpt-4o-mini"
+        return self.settings.model_cheap if cheap else self.settings.model_default
 
     # ------------------------------------------------ internal
     def _check_budget(self) -> None:
@@ -78,23 +98,45 @@ class LLM:
         self._check_budget()
         if self.mock:
             return self._mock(purpose, context or {})
-        model = model or self.settings.model_default
-        kwargs = dict(model=model, max_tokens=max_tokens, system=system,
-                      messages=[{"role": "user", "content": prompt}])
-        if use_web_search:
-            kwargs["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}]
+        model = model or self._model_default()
         err = None
         for attempt in range(3):
             try:
-                resp = self._client.messages.create(**kwargs)
-                text = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
-                self._log(model, resp.usage.input_tokens, resp.usage.output_tokens, purpose, agent, True)
-                return text.strip()
+                if self.provider == "openai":
+                    text, tin, tout = self._call_openai(model, system, prompt, max_tokens, use_web_search)
+                else:
+                    text, tin, tout = self._call_anthropic(model, system, prompt, max_tokens, use_web_search)
+                self._log(model, tin, tout, purpose, agent, True)
+                return text
             except Exception as e:  # backoff: 2s, 4s, lalu lempar
                 err = e
                 time.sleep(2 * (attempt + 1))
         self._log(model, 0, 0, purpose, agent, False)
-        raise RuntimeError(f"LLM gagal setelah 3x: {err}")
+        raise RuntimeError(f"LLM {self.provider} gagal setelah 3x: {err}")
+
+    def _call_anthropic(self, model, system, prompt, max_tokens, use_web_search):
+        kwargs = dict(model=model, max_tokens=max_tokens, system=system,
+                      messages=[{"role": "user", "content": prompt}])
+        if use_web_search:
+            kwargs["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}]
+        resp = self._client.messages.create(**kwargs)
+        text = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text").strip()
+        return text, resp.usage.input_tokens, resp.usage.output_tokens
+
+    def _call_openai(self, model, system, prompt, max_tokens, use_web_search):
+        if use_web_search:
+            resp = self._client.responses.create(
+                model=model, instructions=system, input=prompt,
+                tools=[{"type": "web_search_preview"}],
+                max_output_tokens=max_tokens)
+            return (resp.output_text or "").strip(), resp.usage.input_tokens, resp.usage.output_tokens
+        resp = self._client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": system},
+                      {"role": "user", "content": prompt}],
+            max_tokens=max_tokens)
+        return (resp.choices[0].message.content or "").strip(), \
+            resp.usage.prompt_tokens, resp.usage.completion_tokens
 
     def classify(self, *, agent: str, text: str) -> str:
         """Klasifikasi balasan lead -> interested | question | not-interested | unsubscribe."""
@@ -106,7 +148,7 @@ class LLM:
                 return "interested"
             return "question" if "?" in low else "not-interested"
         jawaban = self.generate(
-            agent=agent, purpose="classify", model=self.settings.model_cheap, max_tokens=20,
+            agent=agent, purpose="classify", model=self._model_default(cheap=True), max_tokens=20,
             system="Klasifikasikan balasan prospek ke SATU label: interested, question, "
                    "not-interested, atau unsubscribe. Jawab HANYA labelnya.",
             prompt=text[:2000])

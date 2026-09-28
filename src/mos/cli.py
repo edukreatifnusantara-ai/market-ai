@@ -61,13 +61,16 @@ def cmd_doctor(args) -> int:
         cek(True, f"database SQLite ({settings.db_path})")
     except Exception as e:
         cek(False, "database SQLite", str(e))
-    cek(True, f"mode LLM: {'MOCK (tanpa API key)' if settings.force_mock else 'CLAUDE ASLI'}")
     if settings.force_mock:
-        print("  ⚠  isi ANTHROPIC_API_KEY di .env untuk riset & konten nyata")
+        cek(True, "mode LLM: MOCK (tanpa API key)")
+        print("  ⚠  isi ANTHROPIC_API_KEY atau OPENAI_API_KEY di .env untuk riset & konten nyata")
+    else:
+        prov = "CLAUDE" if settings.anthropic_key else "OPENAI"
+        cek(True, f"mode LLM: {prov} ASLI")
     cek(settings.smtp_configured or True, f"SMTP kirim: {'siap' if settings.smtp_configured else 'mock -> data/outbox/email/'}")
     cek(settings.imap_configured or True, f"IMAP baca balasan: {'siap' if settings.imap_configured else 'simulasi -> data/inbox/*.eml'}")
     cek(settings.wa_configured or True, f"WhatsApp Cloud API: {'siap' if settings.wa_configured else 'mock -> data/outbox/whatsapp/'}")
-    for mod in ("anthropic", "fastapi", "fpdf", "apscheduler", "httpx"):
+    for mod in ("anthropic", "openai", "fastapi", "fpdf", "apscheduler", "httpx"):
         try:
             __import__(mod)
             cek(True, f"dependensi {mod}")

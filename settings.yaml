@@ -2,10 +2,13 @@
 timezone: Asia/Jakarta
 
 models:
-  # Model utama untuk riset, strategi, dan penulisan konten
+  # Model utama untuk riset, strategi, dan penulisan konten (provider Anthropic)
   default: claude-sonnet-5
-  # Model murah & cepat untuk klasifikasi balasan lead
+  # Model murah & cepat untuk klasifikasi balasan lead (provider Anthropic)
   cheap: claude-haiku-4-5-20251001
+  # Dipakai bila provider = OpenAI (OPENAI_API_KEY terisi). Naikkan ke gpt-4o untuk kualitas maksimal.
+  openai_default: gpt-4o-mini
+  openai_cheap: gpt-4o-mini
 
 budgets:
   daily_llm_usd: 5.0        # pagu biaya LLM per hari; terlampaui -> jeda fail-safe

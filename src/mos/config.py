@@ -71,13 +71,17 @@ class Settings:
         return self.env("ANTHROPIC_API_KEY")
 
     @property
+    def openai_key(self) -> str:
+        return self.env("OPENAI_API_KEY")
+
+    @property
     def force_mock(self) -> bool:
         v = self.env("FORCE_MOCK", "auto").lower()
         if v == "true":
             return True
         if v == "false":
             return False
-        return not self.anthropic_key  # auto: mock bila tanpa API key
+        return not (self.anthropic_key or self.openai_key)  # auto: mock bila tanpa API key apa pun
 
     @property
     def smtp_configured(self) -> bool:

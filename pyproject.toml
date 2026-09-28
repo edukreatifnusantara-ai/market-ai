@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 license = { text = "MIT" }
 dependencies = [
     "anthropic>=0.40",
+    "openai>=1.40",
     "sqlalchemy>=2.0",
     "apscheduler>=3.10,<4",
     "fastapi>=0.110",

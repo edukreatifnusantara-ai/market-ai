@@ -60,7 +60,7 @@ Isi `.env` (lihat `.env.example`):
 
 | Kredensial | Untuk apa |
 |---|---|
-| `ANTHROPIC_API_KEY` | riset web nyata + penulisan konten (Claude) |
+| `ANTHROPIC_API_KEY` **atau** `OPENAI_API_KEY` (salah satu) | riset web nyata + penulisan konten |
 | `SMTP_*`, `IMAP_*`, `EMAIL_FROM` | kirim email + baca balasan (Gmail: App Password) |
 | `WA_PHONE_NUMBER_ID`, `WA_ACCESS_TOKEN`, `WA_BUSINESS_ACCOUNT_ID`, `WA_VERIFY_TOKEN` | WhatsApp Business Cloud API resmi |
 | `OWNER_EMAIL`, `OWNER_PHONE` | tujuan eskalasi Sentinel |
