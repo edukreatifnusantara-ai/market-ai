@@ -1,0 +1,8 @@
+[Unit]
+Description=Marketing OS Sentinel — satu siklus pengecekan kesehatan
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/warungndelik/marketing-os
+ExecStart=/home/warungndelik/marketing-os/.venv/bin/mos sentinel
+Environment=PYTHONUNBUFFERED=1

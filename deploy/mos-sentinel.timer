@@ -1,0 +1,10 @@
+[Unit]
+Description=Menjalankan Sentinel tiap 5 menit (lapisan kedua di luar orkestrator)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

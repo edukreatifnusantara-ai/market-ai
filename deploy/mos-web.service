@@ -1,0 +1,13 @@
+[Unit]
+Description=Marketing OS Webhook Server (WhatsApp Cloud API)
+After=network-online.target
+
+[Service]
+WorkingDirectory=/home/warungndelik/marketing-os
+ExecStart=/home/warungndelik/marketing-os/.venv/bin/mos web --host 0.0.0.0 --port 8010
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

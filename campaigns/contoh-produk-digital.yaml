@@ -1,0 +1,39 @@
+# ============================================================
+# TEMPLATE KAMPANYE — duplikat file ini untuk produk baru.
+# Semua agen membaca file ini sebagai "brief" perusahaan.
+# ============================================================
+slug: panduan-ai-umkm
+name: Panduan Praktis AI untuk UMKM Indonesia
+type: digital            # digital | physical
+status: active
+
+# Deskripsi produk — inilah bahan bakar riset. Makin jelas, makin tajam.
+description: >
+  Ebook + template praktis yang mengajarkan pemilik UMKM Indonesia
+  cara memakai AI (penulisan konten, balasan pelanggan, riset kompetitor)
+  tanpa latar belakang teknis. Berbahasa Indonesia, penuh contoh nyata.
+
+# Petunjuk awal untuk agen riset & segmentasi
+target_hint: >
+  Pemilik usaha kecil/menengah di Indonesia (kuliner, fashion, jasa),
+  usia 25-50, aktif di WhatsApp/Instagram, belum memakai AI secara rutin,
+  merasa kewalahan membuat konten promosi sendiri.
+
+price_hint_idr: 149000
+currency: IDR
+
+# Tujuan pengiriman materi & landing page (isi URL nyata saat live)
+landing_url: https://contoh.id/panduan-ai-umkm
+reply_email: halo@contoh.id
+
+# Pertanyaan riset yang HARUS dijawab agen Researcher dengan data nyata
+research_questions:
+  - Siapa kompetitor utama produk edukasi AI untuk UMKM di Indonesia dan berapa harga mereka?
+  - Apa 5 keluhan terbesar pemilik UMKM soal pembuatan konten promosi (dari forum, sosmed, ulasan)?
+  - Seberapa besar tren pencarian & adopsi AI di kalangan UMKM Indonesia 2 tahun terakhir?
+  - Benefit apa yang paling sering dijanjikan kompetitor, dan mana yang paling dipercaya pasar?
+  - Channel apa yang paling efektif menjangkau segmen ini (WA, IG, komunitas)?
+
+# Bukti opt-in WhatsApp: lead hanya boleh dikirimi WA bila diimpor dengan opt_in_wa=true
+notes: >
+  Kampanye contoh. Ganti URL, harga, dan deskripsi sesuai produk nyata.

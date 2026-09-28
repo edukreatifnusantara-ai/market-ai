@@ -1,0 +1,42 @@
+# Pengaturan global Marketing OS
+timezone: Asia/Jakarta
+
+models:
+  # Model utama untuk riset, strategi, dan penulisan konten
+  default: claude-sonnet-5
+  # Model murah & cepat untuk klasifikasi balasan lead
+  cheap: claude-haiku-4-5-20251001
+
+budgets:
+  daily_llm_usd: 5.0        # pagu biaya LLM per hari; terlampaui -> jeda fail-safe
+  daily_email_sends: 100    # batas kirim email per hari (masa penuh)
+  daily_wa_sends: 50        # batas kirim WhatsApp per hari (masa penuh)
+
+send_policy:
+  quiet_hours_start: "21:00"   # tidak kirim WA/email di luar jam ini
+  quiet_hours_end: "08:00"
+  per_lead_cooldown_hours: 48  # jeda minimal antar pesan ke lead yang sama per channel
+
+warmup:
+  enabled: true
+  day1_cap: 10            # hari pertama sistem berjalan per channel
+  growth_per_day: 1.5     # kapasitas naik 50% per hari sampai mencapai batas penuh
+
+sentinel:
+  interval_minutes: 5
+  stuck_minutes: 15            # task 'running' lebih lama dari ini -> reset
+  heartbeat_stale_minutes: 10  # agen tanpa detak selama ini -> insiden
+  llm_error_rate_threshold: 0.2
+  bounce_rate_threshold: 0.05
+  backup_hour: 3               # backup DB harian jam 03:00
+
+sequences:
+  # Langkah follow-up dalam hari sejak lead masuk kampanye
+  email_steps: [0, 2, 5, 9]
+  wa_steps: [1, 4]
+
+followup:
+  interval_minutes: 15
+
+emailer:
+  poll_interval_minutes: 5

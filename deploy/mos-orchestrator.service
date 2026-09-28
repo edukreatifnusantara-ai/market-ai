@@ -1,0 +1,13 @@
+[Unit]
+Description=Marketing OS Orchestrator (agen AI 24/7)
+After=network-online.target
+
+[Service]
+WorkingDirectory=/home/warungndelik/marketing-os
+ExecStart=/home/warungndelik/marketing-os/.venv/bin/mos run
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target
