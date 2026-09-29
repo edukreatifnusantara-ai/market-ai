@@ -5,13 +5,25 @@ from mos.db import Lead, SequenceStep, session_scope, utcnow
 
 def _lead(s, **kw):
     kw.setdefault("name", "Uji")
-    kw.setdefault("email", "uji@example.com")
+    kw.setdefault("email", "uji@contoh.id")
     kw.setdefault("phone", "628111111111")
     kw.setdefault("opt_in_wa", True)
     lead = Lead(campaign_id=1, **kw)
     s.add(lead)
     s.flush()
     return lead
+
+
+def test_domain_uji_diblokir(stack):
+    """Alamat @example.com dll tidak pernah dikirimi — mencegah bounce reputasi."""
+    settings, engine, _, _ = stack
+    with session_scope(engine) as s:
+        lead = _lead(s, email="siapa@example.com")
+        ok, alasan = guardrails.check_send(settings, s, lead, "email")
+        assert not ok and "domain uji" in alasan
+        lead2 = _lead(s, email="asli@contoh.id")
+        ok2, _ = guardrails.check_send(settings, s, lead2, "email")
+        assert ok2  # domain normal tetap lolos
 
 
 def test_kill_switch(stack):
@@ -39,8 +51,8 @@ def test_unsubscribe_blacklist_dan_sekuens_berhenti(stack):
         lead = _lead(s)
         s.add(SequenceStep(lead_id=lead.id, campaign_id=1, step_no=0,
                            channel="email", due_at=utcnow(), status="pending"))
-        guardrails.unsubscribe(s, "email", "UJI@example.com", "tes")
-        assert guardrails.is_blacklisted(s, "email", "uji@example.com")
+        guardrails.unsubscribe(s, "email", "UJI@contoh.id", "tes")
+        assert guardrails.is_blacklisted(s, "email", "uji@contoh.id")
         assert lead.unsubscribed_at is not None
         step = s.query(SequenceStep).filter_by(lead_id=lead.id).one()
         assert step.status == "skipped"

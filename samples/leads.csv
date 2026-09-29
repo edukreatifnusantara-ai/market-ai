@@ -1,5 +1,5 @@
 name,email,phone,opt_in_wa,source
-Bu Rina (Kuliner),rina.kuliner@example.com,6281200000001,true,komunitas UMKM
-Mas Bima (Olshop),bima.olshop@example.com,6281200000002,true,form website
-Pak Hendra (Jasa),hendra.jasa@example.com,,false,referral
-Mbak Sari (Fashion),sari.fashion@example.com,6281200000003,true,komunitas UMKM
+Bu Rina (Kuliner),rina.kuliner@contoh.id,6281200000001,true,komunitas UMKM
+Mas Bima (Olshop),bima.olshop@contoh.id,6281200000002,true,form website
+Pak Hendra (Jasa),hendra.jasa@contoh.id,,false,referral
+Mbak Sari (Fashion),sari.fashion@contoh.id,6281200000003,true,komunitas UMKM

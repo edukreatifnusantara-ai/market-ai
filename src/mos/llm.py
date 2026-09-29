@@ -19,6 +19,7 @@ HARGA_MODEL = {
     "gpt-4.1": (2.0, 8.0),
     "gpt-4.1-mini": (0.4, 1.6),
     "gpt-4.1-nano": (0.1, 0.4),
+    "gpt-5.6-luna": (2.5, 10.0),  # perkiraan — sesuaikan bila harga resmi diketahui
     "mock": (0.0, 0.0),
 }
 
@@ -125,11 +126,15 @@ class LLM:
 
     def _call_openai(self, model, system, prompt, max_tokens, use_web_search):
         if use_web_search:
-            resp = self._client.responses.create(
-                model=model, instructions=system, input=prompt,
-                tools=[{"type": "web_search_preview"}],
-                max_output_tokens=max_tokens)
-            return (resp.output_text or "").strip(), resp.usage.input_tokens, resp.usage.output_tokens
+            try:
+                resp = self._client.responses.create(
+                    model=model, instructions=system, input=prompt,
+                    tools=[{"type": "web_search_preview"}],
+                    max_output_tokens=max_tokens)
+                return (resp.output_text or "").strip(), \
+                    resp.usage.input_tokens, resp.usage.output_tokens
+            except Exception:
+                pass  # model/provider tak mendukung tool web_search -> lanjut tanpa browsing
         resp = self._client.chat.completions.create(
             model=model,
             messages=[{"role": "system", "content": system},

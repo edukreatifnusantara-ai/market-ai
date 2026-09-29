@@ -15,9 +15,9 @@ def test_pipeline_lengkap(stack, campaign):
     # lead 1 dibuat "kemarin" supaya langkah WA hari-1 juga jatuh tempo saat tes
     kemarin = utcnow() - timedelta(days=2)
     with session_scope(engine) as s:
-        s.add(Lead(campaign_id=campaign, name="Uji Satu", email="satu@example.com",
+        s.add(Lead(campaign_id=campaign, name="Uji Satu", email="satu@contoh.id",
                    phone="628111111111", opt_in_wa=True, created_at=kemarin))
-        s.add(Lead(campaign_id=campaign, name="Uji Dua", email="dua@example.com",
+        s.add(Lead(campaign_id=campaign, name="Uji Dua", email="dua@contoh.id",
                    phone="", opt_in_wa=False))
 
     Orchestrator(ctx).run_until_idle(max_seconds=120)

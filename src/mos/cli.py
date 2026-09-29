@@ -200,9 +200,35 @@ def cmd_run(args) -> int:
         print("✔ Antrean kosong (mode --once selesai).")
     else:
         print(f"Marketing OS berjalan 24/7 ({args.workers} worker). Ctrl+C untuk berhenti.")
-        print(f"Mode LLM: {'MOCK' if llm.mock else 'CLAUDE'} | Kill switch: {settings.kill_switch_file}")
+        print(f"Mode LLM: {llm.provider.upper()} | Kill switch: {settings.kill_switch_file}")
         asyncio.run(orch.run_forever())
     return 0
+
+
+def cmd_test_email(args) -> int:
+    """Kirim email percobaan untuk verifikasi SMTP."""
+    settings = Settings.load()
+    if not settings.smtp_configured:
+        print("❌ SMTP belum terkonfigurasi — isi SMTP_* di .env dulu.")
+        return 1
+    import smtplib
+    from email.message import EmailMessage
+    msg = EmailMessage()
+    msg["From"] = settings.env("EMAIL_FROM") or settings.env("SMTP_USER")
+    msg["To"] = args.to
+    msg["Subject"] = "Marketing OS — email percobaan"
+    msg.set_content("Bila email ini sampai, konfigurasi SMTP Anda sudah benar.\n— Marketing OS")
+    try:
+        with smtplib.SMTP(settings.env("SMTP_HOST"), int(settings.env("SMTP_PORT", "587"))) as s:
+            s.starttls()
+            s.login(settings.env("SMTP_USER"), settings.env("SMTP_PASS"))
+            s.send_message(msg)
+        print(f"✔ Email percobaan terkirim ke {args.to} — cek inbox (dan folder Spam).")
+        return 0
+    except Exception as e:
+        print(f"❌ Gagal: {type(e).__name__}: {e}")
+        print("   Gmail wajib pakai App Password (bukan password akun), dan 2FA harus aktif.")
+        return 1
 
 
 def cmd_web(args) -> int:
@@ -253,13 +279,15 @@ def main(argv=None) -> int:
     l.add_argument("file", nargs="?", help="csv (import)")
     l.add_argument("--campaign", default=None)
     sub.add_parser("approve", help="lihat 20 pesan terakhir keluar/masuk")
+    t = sub.add_parser("test-email", help="kirim email percobaan untuk verifikasi SMTP")
+    t.add_argument("to", help="alamat tujuan, mis. edukreatifnusantara@gmail.com")
     sub.add_parser("sentinel", help="jalankan satu siklus divisi perbaikan")
     w = sub.add_parser("web", help="server webhook WhatsApp")
     w.add_argument("--host", default="127.0.0.1")
     w.add_argument("--port", type=int, default=8000)
     sub.add_parser("demo", help="jalankan kampanye contoh end-to-end")
     args = p.parse_args(argv)
-    return globals()[f"cmd_{args.cmd}"](args)
+    return globals()[f"cmd_{args.cmd.replace('-', '_')}"](args)
 
 
 if __name__ == "__main__":

@@ -11,6 +11,14 @@ from .db import Blacklist, Lead, Metric, utcnow
 
 COOLDOWN_HOURS_DEFAULT = 48
 
+# Domain uji/dummy — kirim ke sini hanya menghasilkan bounce & merusak reputasi pengirim
+DOMAIN_UJI = ("example.com", "example.org", "example.net", "test", "invalid", "localhost")
+
+
+def _domain_uji(alamat: str) -> bool:
+    dom = (alamat or "").rsplit("@", 1)[-1].lower()
+    return dom in DOMAIN_UJI or dom.endswith(".invalid")
+
 
 def kill_switch_active(settings) -> bool:
     return settings.kill_switch_file.exists()
@@ -58,6 +66,8 @@ def check_send(settings, session: Session, lead: Lead, channel: str) -> tuple[bo
     address = (lead.email if channel == "email" else lead.phone) or ""
     if not address:
         return False, f"lead tanpa {channel}"
+    if channel == "email" and _domain_uji(address):
+        return False, "domain uji (dummy) — diblokir agar tidak bounce"
     if is_blacklisted(session, channel, address):
         return False, "blacklist"
     if lead.unsubscribed_at:

@@ -6,9 +6,9 @@ models:
   default: claude-sonnet-5
   # Model murah & cepat untuk klasifikasi balasan lead (provider Anthropic)
   cheap: claude-haiku-4-5-20251001
-  # Dipakai bila provider = OpenAI (OPENAI_API_KEY terisi). Naikkan ke gpt-4o untuk kualitas maksimal.
-  openai_default: gpt-4o-mini
-  openai_cheap: gpt-4o-mini
+  # Dipakai bila provider = OpenAI (OPENAI_API_KEY terisi)
+  openai_default: gpt-5.6-luna
+  openai_cheap: gpt-5.6-luna
 
 budgets:
   daily_llm_usd: 5.0        # pagu biaya LLM per hari; terlampaui -> jeda fail-safe
